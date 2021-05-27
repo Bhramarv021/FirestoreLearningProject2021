@@ -32,4 +32,14 @@
         android:layout_gravity="center"
         android:text="Add to firestore" />
 
+    <Button
+        android:id="@+id/fetchBtn"
+        android:textSize="10sp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="30dp"
+        android:layout_gravity="center"
+        android:text="Fetch From Firestore" />
+
+
 </androidx.appcompat.widget.LinearLayoutCompat>
