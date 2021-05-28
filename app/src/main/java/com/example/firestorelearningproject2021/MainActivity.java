@@ -9,6 +9,7 @@ import android.os.Bundle;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
@@ -34,12 +35,14 @@ public class MainActivity extends AppCompatActivity {
         recyclerView.setAdapter(adapter);
 
         fireStoreRoot = FirebaseFirestore.getInstance();
-        fireStoreRoot.collection("students").get()
+
+//        fireStoreRoot.collection("students").get()
+        fireStoreRoot.collection("students").orderBy("name", Query.Direction.DESCENDING).get()
                 .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
                     @Override
                     public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
                         List<DocumentSnapshot> list = queryDocumentSnapshots.getDocuments();
-                        for(DocumentSnapshot d : list){
+                        for (DocumentSnapshot d : list) {
                             Model obj = d.toObject(Model.class);
                             arrayList.add(obj);
                         }

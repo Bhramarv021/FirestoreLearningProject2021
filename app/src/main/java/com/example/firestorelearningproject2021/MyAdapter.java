@@ -1,5 +1,6 @@
 package com.example.firestorelearningproject2021;
 
+import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -29,6 +30,18 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.MyViewHolder>{
     public void onBindViewHolder(@NonNull MyAdapter.MyViewHolder holder, int position) {
         holder.name.setText(dataList.get(position).getName());
         holder.email.setText(dataList.get(position).getEmail());
+
+        holder.name.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(holder.name.getContext(), Detail.class);
+                intent.putExtra("uname", dataList.get(position).getName());
+                intent.putExtra("uemail", dataList.get(position).getEmail());
+
+                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                holder.name.getContext().startActivity(intent);
+            }
+        });
     }
 
     @Override
