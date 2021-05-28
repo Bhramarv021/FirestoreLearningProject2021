@@ -1,91 +1,53 @@
 package com.example.firestorelearningproject2021;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import android.os.Bundle;
-import android.view.View;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.Toast;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnFailureListener;
+import android.os.Bundle;
+
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
-import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QuerySnapshot;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
-    EditText userName, userEmail;
-    Button submit, fetchData;
+    RecyclerView recyclerView;
+    ArrayList<Model> arrayList;
     FirebaseFirestore fireStoreRoot;
+    MyAdapter adapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        userName = findViewById(R.id.name);
-        userEmail = findViewById(R.id.email);
-        submit = findViewById(R.id.addBtn);
-        fetchData = findViewById(R.id.fetchBtn);
+        recyclerView = findViewById(R.id.recView);
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+
+        arrayList = new ArrayList<>();
+        adapter = new MyAdapter(arrayList);
+        recyclerView.setAdapter(adapter);
 
         fireStoreRoot = FirebaseFirestore.getInstance();
-
-        submit.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                insertData();
-            }
-        });
-
-        fetchData.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                fetchData();
-            }
-        });
-    }
-
-    public void insertData(){
-        Map<String , String > items = new HashMap<>();
-        items.put("name", userName.getText().toString().trim());
-        items.put("email", userEmail.getText().toString().trim());
-
-        fireStoreRoot.collection("students").add(items)
-                .addOnCompleteListener(new OnCompleteListener<DocumentReference>() {
+        fireStoreRoot.collection("students").get()
+                .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
                     @Override
-                    public void onComplete(@NonNull Task<DocumentReference> task) {
-                        userName.setText("");
-                        userEmail.setText("");
-                        Toast.makeText(MainActivity.this, "Inserted Successfully", Toast.LENGTH_SHORT).show();
+                    public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+                        List<DocumentSnapshot> list = queryDocumentSnapshots.getDocuments();
+                        for(DocumentSnapshot d : list){
+                            Model obj = d.toObject(Model.class);
+                            arrayList.add(obj);
+                        }
+                        // Update Adapter
+                        adapter.notifyDataSetChanged();
                     }
                 });
+
     }
 
-    public void fetchData(){
-        DocumentReference documentReference = fireStoreRoot.collection("students").document("data4");
-        documentReference.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-            @Override
-            public void onSuccess(DocumentSnapshot documentSnapshot) {
-                if(documentSnapshot.exists()){
-                    userName.setText(documentSnapshot.getString("name"));
-                    userEmail.setText(documentSnapshot.getString("email"));
-                }
-                else {
-                    Toast.makeText(MainActivity.this, "Row now found", Toast.LENGTH_SHORT).show();
-                }
-            }
-        }).addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception e) {
-                Toast.makeText(MainActivity.this, "Failed to fetch data", Toast.LENGTH_SHORT).show();
-            }
-        });
-    }
 }
